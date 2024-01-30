@@ -1,14 +1,33 @@
+var repoNameEl = document.querySelector("#repo-name");
 var issueContainerEl = document.querySelector("#issues-container");
 var limitWarningEl = document.querySelector("#limit-warning");
 
-var displayWarning = function(repo){
+
+var getRepoName = function () {
+     // grab repo name from url query string
+    var queryString = document.location.search;
+    var repoName = queryString.split("=")[1];
+
+    
+    if(repoName){
+         // display repo name on the page
+        repoNameEl.textContent= repoName;
+        getRepoIssues(repoName);
+    }else{
+        // if no repo was given, redirect to the homepage
+        document.location.replace("./index.html");
+    }
+};
+
+
+var displayWarning = function (repo) {
     limitWarningEl.textContent = "To see more than 30 issues, visit ";
     var linkEl = document.createElement("a");
     linkEl.textContent = "see more issues on GitHub.com ";
     linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
     linkEl.setAttribute("target", "_blank");
     // append to warning container
-  limitWarningEl.appendChild(linkEl);
+    limitWarningEl.appendChild(linkEl);
 }
 
 var getRepoIssues = function (repo) {
@@ -17,18 +36,19 @@ var getRepoIssues = function (repo) {
         if (response.ok) {
             response.json().then(function (data) {
                 displayIssues(data);
-                if(response.headers.get("link")){
+                if (response.headers.get("link")) {
                     displayWarning(repo);
                 }
-                
+
             })
         } else {
-            alert("There was a problem with your request!");
+             // if not successful, redirect to homepage
+            document.location.replace("./index.html");
         }
     })
 };
 
-getRepoIssues("facebook/react");
+
 
 var displayIssues = function (issues) {
     if (issues.length === 0) {
@@ -65,3 +85,4 @@ var displayIssues = function (issues) {
         issueContainerEl.appendChild(issueEl);
     }
 }
+getRepoName();
